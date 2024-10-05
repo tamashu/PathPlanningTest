@@ -5,7 +5,8 @@
 RRTは最適な経路を保証しない
 ### RRTデモ映像
 https://github.com/user-attachments/assets/ba4186f5-fc0d-4ef8-93af-5e56d280ddbb
-※青い線が導出した経路、黒点は経路算出時の候補、灰色の丸は障害物を表す
+
+※青い線が導出した経路、黒点は経路算出時の候補、灰色の丸は障害物
 
 
 
