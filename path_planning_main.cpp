@@ -41,7 +41,9 @@ tCircleObstacle obstacle2 = { -1.0,-3.0,1.0 };
 
 std::vector<tCircleObstacle>circle_obstacles = { obstacle1,obstacle2 };
 
-
+//マウスによる点操作のためのフラグ
+bool is_start_point_clicked = false;
+bool is_goal_point_clicked = false;
 
 
 void renderBitmapString(float x, float y, const char* string) {
@@ -141,7 +143,7 @@ void drawAllNodePoint() {
     for (int i = 0; i < tree.size(); i++) {
         drawCircle(tree[i].point.x, tree[i].point.y, NODE_POINT_SIZE);
     }
-    std::cout << "Num of Points:" << tree.size() << std::endl;
+    //std::cout << "Num of Points:" << tree.size() << std::endl;
 }
 
 void drawCircleObstacle(std::vector<tCircleObstacle>obstacles) {
@@ -158,9 +160,14 @@ void display(void)
     glColor3d(1.0, 0.0, 0.0);
     drawGrid();
     //drawCircle(0.0, 0.0,1.0,blue);
-    drawPath(path,blue);
+    
     drawCircleObstacle(circle_obstacles);
     drawAllNodePoint();
+    drawCircle(start.x, start.y, 0.3);
+    drawCircle(goal.x, goal.y, 0.3);
+
+    drawPath(path, blue);
+
     glFlush();
 }
 
@@ -194,14 +201,84 @@ void init(void)
     }
 }
 
+//ウィンドウの座標系からグリッドの座標系に変換
+double convertGlobalCordinate_x(int x) {
+    return x *(MAX_X + MARGIN - (MIN_X - MARGIN)) / (double)window_width +  (MIN_X- MARGIN);
+}
+double convertGlobalCordinate_y(int y) {
+    return -(y * (MAX_Y + MARGIN - (MIN_Y - MARGIN)) / (double)window_height + (MIN_Y - MARGIN));
+}
+
+double calDist(double x1, double y1, double x2, double y2 ) {
+    return  sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+}
+
+void mouse(int button, int state, int x, int y) {
+    double clicked_x = convertGlobalCordinate_x(x);
+    double clicked_y = convertGlobalCordinate_y(y);
+
+    switch (button) {
+    case GLUT_LEFT_BUTTON:
+        if (state == GLUT_DOWN) {
+            double start_clickpoint_dist = calDist(start.x, start.y, clicked_x, clicked_y);
+            double goal_clickpoint_dist = calDist(goal.x, goal.y, clicked_x, clicked_y);
+                
+                if (start_clickpoint_dist < 0.5) {
+                    is_start_point_clicked = true;
+                    
+                }
+                else if (goal_clickpoint_dist < 0.5) {
+                    is_goal_point_clicked = true;
+                }
+                else{
+                    is_start_point_clicked = false;
+                    is_goal_point_clicked = false;
+            }
+            break;
+        }
+        else {
+            is_start_point_clicked = false;
+            is_goal_point_clicked = false;
+        }
+    default:
+        break;
+    }
+
+
+    
+    //printf(" at (%d, %d)\n", x, y);
+
+}
+
+void motion(int x, int y) {
+    float mouse_x = convertGlobalCordinate_x(x);
+    float mouse_y = convertGlobalCordinate_y(y);
+    if (is_start_point_clicked) {
+        start.x = mouse_x;
+        start.y = mouse_y;
+        rrt.setStartPoint(start);
+        path  = rrt.plan_();
+        glutPostRedisplay();
+    }
+    else if (is_goal_point_clicked) {
+        goal.x = mouse_x;
+        goal.y = mouse_y;
+        rrt.setGoalPoint(goal);
+        path = rrt.plan_();
+        glutPostRedisplay();
+    }
+}
+
 int main(int argc, char* argv[])
 {
     glutInitWindowSize(window_width, window_height);
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA);
-    glutCreateWindow(argv[0]);
+    glutCreateWindow("Path Planning");
     glutDisplayFunc(display);
     glutReshapeFunc(resize);
+    glutMouseFunc(mouse);
+    glutMotionFunc(motion);
     init();
     glutMainLoop();
     return 0;

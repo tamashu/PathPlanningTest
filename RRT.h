@@ -25,11 +25,13 @@ public:
     // 経路を計画する関数
     std::vector<tPoint> plan_();
     std::vector<Node> getTree_();
+    void setStartPoint(tPoint start);
+    void setGoalPoint(tPoint goal);
     void setObstacles_(std::vector<tCircleObstacle>circle_obstacles, double obstacle_margin);    //円の障害物を設定
 
 private:
     bool isCollisionObstacle_(tPoint point);
-    const double GOAL_RATE = 0.1;   //randomな点でゴールが選ばれる確率
+    const double GOAL_RATE = 0.3;   //randomな点でゴールが選ばれる確率
     tPoint start_, goal_;
     double min_x_,min_y_,max_x_, max_y_, max_step_, goal_radius_;
     int max_iterations_;

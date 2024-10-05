@@ -57,6 +57,8 @@ std::vector<tPoint> RRT::extractPath_() {
 
 // Œo˜H‚ðŒv‰æ‚·‚é
 std::vector<tPoint> RRT::plan_() {
+    tree_.clear();
+    tree_.push_back({ start_, -1 });
     bool is_collision = false;
 
     for (int i = 0; i < max_iterations_; i++) {
@@ -82,6 +84,13 @@ std::vector<tPoint> RRT::plan_() {
 
 std::vector<Node> RRT::getTree_() {
     return tree_;
+}
+
+void RRT::setStartPoint(tPoint start) {
+    start_ = start;
+}
+void RRT::setGoalPoint(tPoint goal) {
+    goal_ = goal;
 }
 
 void RRT::setObstacles_(std::vector<tCircleObstacle>circle_obstacles,double obstacle_margin) {
